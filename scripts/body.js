@@ -3,7 +3,7 @@ import {G, TIME_SCALE, FRAMERATE} from './constants.js'
 
 export default class Body {
     
-    constructor(mass, pos, vel) {
+    constructor(mass, pos, vel = new Vector(0, 0)) {
         this.mass = mass
         this.pos = pos
         this.vel = vel

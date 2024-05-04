@@ -1,29 +1,46 @@
 import {FRAMERATE, SCREEN_WIDTH} from './constants.js'
 import Body from './body.js'
 import {Vector, scale, add, sub} from './vector.js'
-let DIST_SCALE = 1000000
+// DIST_SCALE = meters per pixel
+let DIST_SCALE = 1_000_000
 let screen_center = new Vector(0, 0)
 
 function to_screen_vect(physics_vect) {
-    return add(sub(scale(1 / DIST_SCALE, physics_vect), screen_center), new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2))
+    return add(
+        sub(
+            scale(1 / DIST_SCALE, physics_vect), 
+            screen_center
+        ), 
+        new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
+    )
 }
 
 function to_physics_vect(screen_vect) {
-    const ans =  scale(DIST_SCALE, add(sub(screen_vect, new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)), screen_center))
-    console.log(screen_vect)
-    console.log(ans)
-    return ans
+    return scale(
+        DIST_SCALE, 
+        add(
+            sub(
+                screen_vect, 
+                new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
+            ), 
+            screen_center
+        )
+    )
 }
 
-function draw_point(ctx, origin) {
+function draw_point(ctx, origin, size) {
     ctx.beginPath()
     const screen_origin = to_screen_vect(origin)
-    ctx.arc(screen_origin.x, screen_origin.y, 2, 0, 2 * Math.PI)
+    ctx.arc(screen_origin.x, screen_origin.y, size, 0, 2 * Math.PI)
     ctx.fill()
 }
 
 function draw_pos(ctx, body) {
-    draw_point(ctx, body.pos)
+    draw_point(
+        ctx, 
+        body.pos, 
+        2 // 2 * (1_000_000 / DIST_SCALE) * Math.pow(body.mass, 1 / 3) / Math.pow(1e29, 1 / 3)
+    )
 }
 
 function draw_vect(ctx, origin, vect, clr) {
@@ -53,27 +70,22 @@ function main() {
     let adding_body = null;
     let pause = true
     // sun
-    bodies.push(new Body(1.99e33, new Vector(0, 0), new Vector(0, 0)))
+    bodies.push(new Body(1.99e33, new Vector(0, 0)))
     // earth
     // const v_earth = -37983549.0706
-    bodies.push(new Body(5.97e29, new Vector(92 * DIST_SCALE, 0), new Vector(0, -37983549.0706)))
+    bodies.push(new Body(5.97e29, new Vector(92 * DIST_SCALE, 0), new Vector(0, -37983549.0706 + -13000000)))
+    bodies.push(new Body(5.97e29, new Vector(-92 * DIST_SCALE, 0), new Vector(0, -37983549.0706 + 10000000)))
     // moon ?!
     // bodies.push(new Body(7.35e22, new Vector((400 + 92 - 6.1) * DIST_SCALE, 400 * DIST_SCALE), new Vector(0, -37983549.0706 - 1.5 * 2555031)))
     let adding = false;
     canvas.addEventListener('click', (e) => {
         const rect = e.target.getBoundingClientRect()
-        console.log('clicked')
+        const click_pos = new Vector(e.clientX - rect.left, e.clientY - rect.top)
         if(!adding) {
-            const x = e.clientX - rect.left
-            const y = e.clientY - rect.top
-            adding_body = new Body(1e33, to_physics_vect(new Vector(x, y)), new Vector(0, 0))
+            adding_body = new Body(1e33, to_physics_vect(click_pos))
         }
         else {
-            const x = e.clientX - rect.left
-            const y = e.clientY - rect.top
-            const click_pos = new Vector(x, y)
             adding_body.vel = sub(to_physics_vect(click_pos), adding_body.pos)
-            console.log(adding_body.vel)
             bodies.push(adding_body)
         }
         adding = !adding
@@ -97,11 +109,11 @@ function main() {
     }
     const render = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        // draw circle to show approx orbital path
         // ctx.beginPath()
         // ctx.arc(400, 400, 92, 0, 2 * Math.PI)
         // ctx.stroke()
         if(adding_body) {
-            draw_pos(ctx, adding_body)
             draw_pos(ctx, adding_body)
         }
         for(let i = 0; i < bodies.length; ++i) {
@@ -122,7 +134,11 @@ function main() {
     play_btn.addEventListener('click', () => {
         console.log('playing')
         pause = !pause;
-        if(!pause) {
+        if(pause) {
+            play_btn.innerText = 'Play'
+        }
+        else {
+            play_btn.innerText = 'Pause'
             step()
         }
     })
