@@ -6,3 +6,7 @@ canvas {
 html {
     background-color: black;
 }
+
+#add_body_form {
+    margin: 1rem 0;
+}

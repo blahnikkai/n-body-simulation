@@ -39,7 +39,7 @@ function draw_pos(ctx, body) {
     draw_point(
         ctx, 
         body.pos, 
-        2 // 2 * (1_000_000 / DIST_SCALE) * Math.pow(body.mass, 1 / 3) / Math.pow(1e29, 1 / 3)
+        2 // 2 * (1_000_000 / DIST_SCALE) * Math.pow(body.mass / 1e29, 1 / 3)
     )
 }
 
@@ -66,9 +66,9 @@ function main() {
     const canvas = document.getElementById('canvas')
     const ctx = canvas.getContext('2d')
     ctx.fillStyle = 'white'
-    let bodies = []
     let adding_body = null;
     let pause = true
+    let bodies = []
     // sun
     bodies.push(new Body(1.99e33, new Vector(0, 0)))
     // earth
@@ -100,10 +100,12 @@ function main() {
                 bodies[j].interact(bodies[i])
             }
         }
+        render()
         for(let i = 0; i < bodies.length; ++i) {
             bodies[i].integrate()
         }
         if(!pause) {
+            // 1000 / FRAMERATE converts frames per second to ms per frame
             setTimeout(step, 1000 / FRAMERATE)
         }
     }
@@ -121,11 +123,11 @@ function main() {
             draw_vel(ctx, bodies[i])
             draw_acc(ctx, bodies[i])
         }
-        window.requestAnimationFrame(render)
     }
     render()
     const step_btn = document.getElementById('step')
     const play_btn = document.getElementById('play')
+    const add_body_form = document.getElementById('add_body_form')
     step_btn.addEventListener('click', () => {
         if(pause) {
             step()
@@ -141,6 +143,23 @@ function main() {
             play_btn.innerText = 'Pause'
             step()
         }
+    })
+    add_body_form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        const replace_nan = (val) => {
+            if(isNaN(val)) {
+                return 0
+            }
+            return val
+        }
+        const mass = parseFloat(add_body_form.mass.value)
+        const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
+        const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
+        const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
+        const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
+        const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
+        console.log(new_body)
+        bodies.push(new_body)
     })
     window.addEventListener('keypress', (event) => {
         const key = event.key

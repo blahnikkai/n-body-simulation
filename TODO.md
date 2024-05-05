@@ -1,0 +1,1 @@
+- [ ] Rendering now does not show points as you draw them
