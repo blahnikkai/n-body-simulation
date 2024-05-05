@@ -130,23 +130,25 @@ function main() {
         adding = !adding
     })
     const step = () => {
-        for(let i = 0; i < bodies.length; ++i) {
-            bodies[i].acc = new Vector(0, 0)
-        }
-        for(let i = 0; i < bodies.length; ++i) {
-            for(let j = i + 1; j < bodies.length; ++j) {
-                bodies[i].interact(bodies[j])
-                bodies[j].interact(bodies[i])
+        if(!pause) {
+            for(let i = 0; i < bodies.length; ++i) {
+                bodies[i].acc = new Vector(0, 0)
+            }
+            for(let i = 0; i < bodies.length; ++i) {
+                for(let j = i + 1; j < bodies.length; ++j) {
+                    bodies[i].interact(bodies[j])
+                    bodies[j].interact(bodies[i])
+                }
+            }
+        }   
+        render()
+        if(!pause) {
+            for(let i = 0; i < bodies.length; ++i) {
+                bodies[i].integrate()
             }
         }
-        render()
-        for(let i = 0; i < bodies.length; ++i) {
-            bodies[i].integrate()
-        }
-        if(!pause) {
-            // 1000 / FRAMERATE converts frames per second to ms per frame
-            setTimeout(step, 1000 / FRAMERATE)
-        }
+        // 1000 / FRAMERATE converts frames per second to ms per frame
+        setTimeout(step, 1000 / FRAMERATE)
     }
     const render = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -183,7 +185,7 @@ function main() {
         }
     })
     add_body_form.addEventListener('submit', handle_add_body)
-    window.addEventListener('keypress', handle_keypress)
+    canvas.addEventListener('keypress', handle_keypress)
 }
 
 main()
