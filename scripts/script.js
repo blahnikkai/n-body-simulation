@@ -1,14 +1,14 @@
-import {FRAMERATE, SCREEN_WIDTH} from './constants.js'
+import {FRAMERATE, SCREEN_WIDTH, CAM_MOVE, CAM_ZOOM_FACTOR} from './constants.js'
 import Body from './body.js'
 import {Vector, scale, add, sub} from './vector.js'
 // DIST_SCALE = meters per pixel
-let DIST_SCALE = 1_000_000
+let dist_scale = 1_000_000
 let screen_center = new Vector(0, 0)
 
 function to_screen_vect(physics_vect) {
     return add(
         sub(
-            scale(1 / DIST_SCALE, physics_vect), 
+            scale(1 / dist_scale, physics_vect), 
             screen_center
         ), 
         new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
@@ -17,7 +17,7 @@ function to_screen_vect(physics_vect) {
 
 function to_physics_vect(screen_vect) {
     return scale(
-        DIST_SCALE, 
+        dist_scale, 
         add(
             sub(
                 screen_vect, 
@@ -62,6 +62,45 @@ function draw_acc(ctx, body) {
     draw_vect(ctx, body.pos, body.acc, 'blue')
 }
 
+function handle_add_body(event) {
+    event.preventDefault()
+    const replace_nan = (val) => {
+        if(isNaN(val)) {
+            return 0
+        }
+        return val
+    }
+    const mass = parseFloat(add_body_form.mass.value)
+    const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
+    const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
+    const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
+    const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
+    const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
+    bodies.push(new_body)
+}
+
+function handle_keypress(event) {
+    const key = event.key
+    if(key == '=') {
+        dist_scale /= CAM_ZOOM_FACTOR
+    }
+    if(key == '-') {
+        dist_scale *= CAM_ZOOM_FACTOR
+    }
+    if(key == 'w') {
+        screen_center.y -= CAM_MOVE
+    }
+    else if(key == 'a') {
+        screen_center.x -= CAM_MOVE
+    }
+    else if(key == 's') {
+        screen_center.y += CAM_MOVE
+    }
+    else if(key == 'd') {
+        screen_center.x += CAM_MOVE
+    }
+}
+
 function main() {
     const canvas = document.getElementById('canvas')
     const ctx = canvas.getContext('2d')
@@ -73,8 +112,8 @@ function main() {
     bodies.push(new Body(1.99e33, new Vector(0, 0)))
     // earth
     // const v_earth = -37983549.0706
-    bodies.push(new Body(5.97e29, new Vector(92 * DIST_SCALE, 0), new Vector(0, -37983549.0706 + -13000000)))
-    bodies.push(new Body(5.97e29, new Vector(-92 * DIST_SCALE, 0), new Vector(0, -37983549.0706 + 10000000)))
+    bodies.push(new Body(5.97e29, new Vector(92 * dist_scale, 0), new Vector(0, -37983549.0706 + -13000000)))
+    bodies.push(new Body(5.97e29, new Vector(-92 * dist_scale, 0), new Vector(0, -37983549.0706 + 10000000)))
     // moon ?!
     // bodies.push(new Body(7.35e22, new Vector((400 + 92 - 6.1) * DIST_SCALE, 400 * DIST_SCALE), new Vector(0, -37983549.0706 - 1.5 * 2555031)))
     let adding = false;
@@ -134,7 +173,6 @@ function main() {
         }
     })
     play_btn.addEventListener('click', () => {
-        console.log('playing')
         pause = !pause;
         if(pause) {
             play_btn.innerText = 'Play'
@@ -144,46 +182,8 @@ function main() {
             step()
         }
     })
-    add_body_form.addEventListener('submit', (event) => {
-        event.preventDefault()
-        const replace_nan = (val) => {
-            if(isNaN(val)) {
-                return 0
-            }
-            return val
-        }
-        const mass = parseFloat(add_body_form.mass.value)
-        const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
-        const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
-        const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
-        const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
-        const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
-        console.log(new_body)
-        bodies.push(new_body)
-    })
-    window.addEventListener('keypress', (event) => {
-        const key = event.key
-        const move = 25
-        const scale = 1.1
-        if(key == '=') {
-            DIST_SCALE /= scale
-        }
-        if(key == '-') {
-            DIST_SCALE *= scale;
-        }
-        if(key == 'w') {
-            screen_center.y -= move
-        }
-        else if(key == 'a') {
-            screen_center.x -= move
-        }
-        else if(key == 's') {
-            screen_center.y += move
-        }
-        else if(key == 'd') {
-            screen_center.x += move
-        }
-    })
+    add_body_form.addEventListener('submit', handle_add_body)
+    window.addEventListener('keypress', handle_keypress)
 }
 
 main()
