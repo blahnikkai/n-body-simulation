@@ -2,6 +2,14 @@ import {FRAMERATE, SCREEN_WIDTH, CAM_MOVE, CAM_ZOOM_FACTOR} from './constants.js
 import Body from './body.js'
 import {Vector, scale, add, sub} from './vector.js'
 
+function mass_to_screen_rad(mass, dist_scale) {
+    return 1.5 * (1e6 / dist_scale) * Math.pow(mass / 1e29, 1 / 3)
+}
+
+function screen_rad_to_mass(rad, dist_scale) {
+    return 1e29 * Math.pow(rad / 1.5 * (dist_scale / 1e6), 3)
+}
+
 function to_screen_vect(physics_vect, dist_scale, screen_center) {
     return add(
         sub(
@@ -36,9 +44,9 @@ function draw_pos(ctx, body, dist_scale, screen_center) {
     draw_point(
         ctx,
         body.pos,
-        2,
+        // 2,
         // screen size based on mass
-        // 2 * (1_000_000 / DIST_SCALE) * Math.pow(body.mass / 1e29, 1 / 3)
+        mass_to_screen_rad(body.mass, dist_scale),
         dist_scale,
         screen_center,
     )
@@ -110,8 +118,9 @@ export class Simulation {
         this.ctx = canvas.getContext('2d')
         this.ctx.fillStyle = 'white'
         // meters per pixel
-        this.dist_scale = 1_000_000
+        this.dist_scale = 1e6
         this.screen_center = new Vector(0, 0)
+        this.adding = 0
         this.adding_body = null
         this.paused = true
         this.bodies = []
@@ -127,20 +136,28 @@ export class Simulation {
         this.canvas.addEventListener('click', (event) => {
             const rect = event.target.getBoundingClientRect()
             const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
-            if(!this.adding) {
-                this.adding_body = new Body(1e33, to_physics_vect(click_pos, this.dist_scale, this.screen_center))
+            if(this.adding == 0) {
+                this.adding_body = new Body(1e29, to_physics_vect(click_pos, this.dist_scale, this.screen_center))
+            }
+            else if(this.adding == 1) {
+                const screen_pos = to_screen_vect(this.adding_body.pos, this.dist_scale, this.screen_center)
+                this.adding_body.mass = screen_rad_to_mass(
+                    Math.hypot(screen_pos.x - click_pos.x, screen_pos.y - click_pos.y), 
+                    this.dist_scale
+                )
             }
             else {
                 this.adding_body.vel = sub(to_physics_vect(click_pos, this.dist_scale, this.screen_center), this.adding_body.pos)
                 this.bodies.push(this.adding_body)
             }
-            this.adding = !this.adding
+            this.adding += 1
+            this.adding %= 3
         })
         const step_btn = document.getElementById('step')
         const play_btn = document.getElementById('play')
         const add_body_form = document.getElementById('add_body_form')
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
-        canvas.addEventListener('keypress', this.handle_keypress)
+        window.addEventListener('keypress', (event) => this.handle_keypress(event))
         step_btn.addEventListener('click', () => {
             if(this.paused) {
                 this.step()
