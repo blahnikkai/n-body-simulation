@@ -124,15 +124,10 @@ export class Simulation {
         this.adding_body = null
         this.paused = true
         this.bodies = []
-        // sun
         this.bodies.push(new Body(1.99e33, new Vector(0, 0)))
-        // earth
-        // const v_earth = -37983549.0706
         this.bodies.push(new Body(5.97e29, new Vector(92 * this.dist_scale, 0), new Vector(0, -37983549.0706 + -13000000)))
         this.bodies.push(new Body(5.97e29, new Vector(-92 * this.dist_scale, 0), new Vector(0, -37983549.0706 + 10000000)))
-        // moon ?!
-        // this.bodies.push(new Body(7.35e22, new Vector((400 + 92 - 6.1) * DIST_SCALE, 400 * DIST_SCALE), new Vector(0, -37983549.0706 - 1.5 * 2555031)))
-
+        // tried to get moon, not possible
         this.canvas.addEventListener('click', (event) => {
             const rect = event.target.getBoundingClientRect()
             const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
