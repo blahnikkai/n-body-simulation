@@ -117,12 +117,19 @@ export class Simulation {
         this.canvas = canvas
         this.ctx = canvas.getContext('2d')
         this.ctx.fillStyle = 'white'
+    
         // meters per pixel
         this.dist_scale = 1e6
         this.screen_center = new Vector(0, 0)
+
         this.adding = 0
         this.adding_body = null
+
         this.paused = true
+
+        this.show_vel = true
+        this.show_acc = true
+        
         this.bodies = []
         this.bodies.push(new Body(1.99e33, new Vector(0, 0)))
         this.bodies.push(new Body(5.97e29, new Vector(92 * this.dist_scale, 0), new Vector(0, -37983549.0706 + -13000000)))
@@ -151,6 +158,14 @@ export class Simulation {
         const step_btn = document.getElementById('step')
         const play_btn = document.getElementById('play')
         const add_body_form = document.getElementById('add_body_form')
+        const show_vel_checkbox = document.getElementById('show_vel_checkbox')
+        const show_acc_checkbox = document.getElementById('show_acc_checkbox')
+        show_vel_checkbox.addEventListener('change', () => {
+            this.show_vel = !this.show_vel
+        })
+        show_acc_checkbox.addEventListener('change', () => {
+            this.show_acc = !this.show_acc
+        })
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
         window.addEventListener('keypress', (event) => this.handle_keypress(event))
         step_btn.addEventListener('click', () => {
@@ -182,8 +197,12 @@ export class Simulation {
         }
         for(let i = 0; i < this.bodies.length; ++i) {
             draw_pos(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            draw_vel(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            draw_acc(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
+            if(this.show_vel) {
+                draw_vel(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
+            }
+            if(this.show_acc) {
+                draw_acc(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
+            }
         }
         window.requestAnimationFrame(() => this.render())
     }

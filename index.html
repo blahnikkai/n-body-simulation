@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Document</title>
@@ -12,17 +15,27 @@
             <button id="step">Step</button>
             <button id="play">Play</button>
         </nav>
+        <form>
+            <div>
+                <input type="checkbox" id="show_vel_checkbox" checked>
+                <label>Show velocity</label>
+            </div>
+            <div>
+                <input type="checkbox" id="show_acc_checkbox" checked>
+                <label>Show acceleration</label>
+            </div>
+        </form>
         <form id="add_body_form">
             <div>
                 <input type="number" name="mass" placeholder="mass (kg)">
             </div>
             <div>
-                <input type="number" name="pos_x" placeholder="position x">
-                <input type="number" name="pos_y" placeholder="position y">
+                <input type="number" name="pos_x" placeholder="x position (m)">
+                <input type="number" name="pos_y" placeholder="y position (m)">
             </div>
             <div>
-                <input type="number" name="vel_x" placeholder="position x">
-                <input type="number" name="vel_y" placeholder="velocity y">
+                <input type="number" name="vel_x" placeholder="x velocity (m/s)">
+                <input type="number" name="vel_y" placeholder="y velocity (m/s)">
             </div>
             <button>Submit</button>
         </form>
