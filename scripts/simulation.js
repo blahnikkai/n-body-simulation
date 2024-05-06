@@ -143,13 +143,27 @@ export class Simulation {
         // }
         
         // orbital resonance
-        this.bodies.push(new Body(1e33, new Vector(0, 0)))
+        // this.bodies.push(new Body(1e33, new Vector(0, 0)))
         // 1:1
-        this.bodies.push(new Body(1e29, new Vector(.7e8, 0), new Vector(0, 30868384.1958)))
+        // this.bodies.push(new Body(1e29, new Vector(.7e8, 0), new Vector(0, 30868384.1958)))
         // 2:1
-        this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
+        // this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
         // 4:1
-        this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
+        // this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
+
+        // almost circular binary star system
+        const m = 1e33
+        const r = 1e8
+        const v = 1.2e7
+        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
+        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
+
+        // eliptical binary star
+        // const m = 2e33
+        // const r = 1.5e8
+        // const v = 1e7
+        // this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
+        // this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
         
         // regular
         // this.bodies.push(new Body(1e34, new Vector(0, 0)))
@@ -227,6 +241,16 @@ export class Simulation {
             if(this.show_acc) {
                 draw_acc(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             }
+            this.ctx.strokeStyle = 'green'
+            this.ctx.beginPath()
+            this.ctx.moveTo(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2)
+            this.ctx.lineTo(SCREEN_WIDTH / 2 + 10, SCREEN_WIDTH / 2)
+            this.ctx.stroke()
+            this.ctx.beginPath()
+            this.ctx.moveTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 - 10)
+            this.ctx.lineTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 + 10)
+            this.ctx.stroke()
+            this.ctx.strokeStyle = 'white'
         }
         window.requestAnimationFrame(() => this.render())
     }
