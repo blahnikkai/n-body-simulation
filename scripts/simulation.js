@@ -12,18 +12,21 @@ function screen_rad_to_mass(rad, dist_scale) {
 
 function to_screen_vect(physics_vect, dist_scale, screen_center) {
     return add(
-        sub(
-            scale(1 / dist_scale, physics_vect), 
-            screen_center
-        ), 
+        scale(1 / dist_scale, 
+            sub(
+                physics_vect, 
+                screen_center
+            ), 
+        ),
         new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
     )
 }
 
 function to_physics_vect(screen_vect, dist_scale, screen_center) {
-    return scale(
-        dist_scale, 
-        add(
+    return add(
+        screen_center,
+        scale(
+            dist_scale,
             sub(
                 screen_vect, 
                 new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
@@ -100,16 +103,16 @@ export class Simulation {
             this.dist_scale *= CAM_ZOOM_FACTOR
         }
         if(key == 'w') {
-            this.screen_center.y -= CAM_MOVE
+            this.screen_center.y -= this.dist_scale * CAM_MOVE
         }
         else if(key == 'a') {
-            this.screen_center.x -= CAM_MOVE
+            this.screen_center.x -= this.dist_scale * CAM_MOVE
         }
         else if(key == 's') {
-            this.screen_center.y += CAM_MOVE
+            this.screen_center.y += this.dist_scale * CAM_MOVE
         }
         else if(key == 'd') {
-            this.screen_center.x += CAM_MOVE
+            this.screen_center.x += this.dist_scale * CAM_MOVE
         }
     }
 
@@ -131,14 +134,24 @@ export class Simulation {
         this.show_acc = true
         
         this.bodies = []
-        this.bodies.push(new Body(1e33, new Vector(0, 0)))
+        // add a lot of random bodies
+        // function rand_int(min, max) { // min and max included 
+            // return Math.random() * (max - min + 1) + min;
+        // }
+        // for(let i = 0; i < 100; ++i) {
+            // this.bodies.push(new Body(10 ** rand_int(29, 31), new Vector(rand_int(-10, 10) * 10 ** 8, rand_int(-10, 10) * 10 ** 8), new Vector(rand_int(-10, 10) * 10 ** 6, rand_int(-10, 10) * 10 ** 6)))
+        // }
+        
         // orbital resonance
+        this.bodies.push(new Body(1e33, new Vector(0, 0)))
         // 1:1
         this.bodies.push(new Body(1e29, new Vector(.7e8, 0), new Vector(0, 30868384.1958)))
         // 2:1
         this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
         // 4:1
         this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
+        
+        // regular
         // this.bodies.push(new Body(1e34, new Vector(0, 0)))
         // this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
         // this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
