@@ -5,3 +5,4 @@
 * Add a button that clears all bodies
 * Add click (left or right?) to delete individual bodies
 * Add option to change time scale
+* Try to get moon (a satellite of a satellite)

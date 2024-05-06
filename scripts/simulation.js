@@ -77,45 +77,6 @@ function draw_acc(ctx, body, dist_scale, screen_center) {
 
 export class Simulation {
 
-    handle_add_body(event, add_body_form) {
-        event.preventDefault()
-        const replace_nan = (val) => {
-            if(isNaN(val)) {
-                return 0
-            }
-            return val
-        }
-        const mass = parseFloat(add_body_form.mass.value)
-        const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
-        const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
-        const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
-        const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
-        const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
-        this.bodies.push(new_body)
-    }
-
-    handle_keypress(event) {
-        const key = event.key
-        if(key == '=') {
-            this.dist_scale /= CAM_ZOOM_FACTOR
-        }
-        if(key == '-') {
-            this.dist_scale *= CAM_ZOOM_FACTOR
-        }
-        if(key == 'w') {
-            this.screen_center.y -= this.dist_scale * CAM_MOVE
-        }
-        else if(key == 'a') {
-            this.screen_center.x -= this.dist_scale * CAM_MOVE
-        }
-        else if(key == 's') {
-            this.screen_center.y += this.dist_scale * CAM_MOVE
-        }
-        else if(key == 'd') {
-            this.screen_center.x += this.dist_scale * CAM_MOVE
-        }
-    }
-
     constructor(canvas) {
         this.canvas = canvas
         this.ctx = canvas.getContext('2d')
@@ -134,43 +95,8 @@ export class Simulation {
         this.show_acc = true
         
         this.bodies = []
-        // add a lot of random bodies
-        // function rand_int(min, max) { // min and max included 
-            // return Math.random() * (max - min + 1) + min;
-        // }
-        // for(let i = 0; i < 100; ++i) {
-            // this.bodies.push(new Body(10 ** rand_int(29, 31), new Vector(rand_int(-10, 10) * 10 ** 8, rand_int(-10, 10) * 10 ** 8), new Vector(rand_int(-10, 10) * 10 ** 6, rand_int(-10, 10) * 10 ** 6)))
-        // }
+        this.add_random_bodies()
         
-        // orbital resonance
-        // this.bodies.push(new Body(1e33, new Vector(0, 0)))
-        // 1:1
-        // this.bodies.push(new Body(1e29, new Vector(.7e8, 0), new Vector(0, 30868384.1958)))
-        // 2:1
-        // this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
-        // 4:1
-        // this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
-
-        // almost circular binary star system
-        const m = 1e33
-        const r = 1e8
-        const v = 1.2e7
-        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
-        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
-
-        // eliptical binary star
-        // const m = 2e33
-        // const r = 1.5e8
-        // const v = 1e7
-        // this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
-        // this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
-        
-        // regular
-        // this.bodies.push(new Body(1e34, new Vector(0, 0)))
-        // this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
-        // this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
-        
-        // tried to get moon, not possible
         this.canvas.addEventListener('click', (event) => {
             const rect = event.target.getBoundingClientRect()
             const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
@@ -222,6 +148,98 @@ export class Simulation {
             }
         })
         this.render()
+    }
+
+    add_regular_orbits() {
+        // sun and two elliptical orbits, one very short period, one longer period
+        this.bodies.push(new Body(1e34, new Vector(0, 0)))
+        this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
+        this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
+    }
+
+    // almost circular binary star system
+    add_circ_binaries() {
+        const m = 1e33
+        const r = 1e8
+        const v = 1.2e7
+        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
+        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
+    }
+
+    // eliptical binary star
+    add_elliptical_binaries() {
+        const m = 2e33
+        const r = 1.5e8
+        const v = 1e7
+        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
+        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
+    }
+
+    // 1:2:4 (4:2:1?) orbital resonance
+    add_resonant_orbits() {
+        this.bodies.push(new Body(1e33, new Vector(0, 0)))
+        // 1:1
+        this.bodies.push(new Body(1e29, new Vector(.7e8, 0), new Vector(0, 30868384.1958)))
+        // 2:1
+        this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
+        // 4:1
+        this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
+    }
+
+    // add a lot of random bodies
+    add_random_bodies() {
+        // generates a random float, min and max included
+        const rand_float = (min, max) => {
+            return Math.random() * (max - min) + min;
+        }
+        for(let i = 0; i < 100; ++i) {
+            this.bodies.push(
+                new Body(
+                    10 ** rand_float(29, 31),
+                    new Vector(rand_float(-8, 8) * 10 ** 8, rand_float(-8, 8) * 10 ** 8), 
+                    new Vector(rand_float(-15, 15) * 10 ** 6, rand_float(-15, 15) * 10 ** 6)
+                )
+            )
+        }
+    }
+
+    handle_add_body(event, add_body_form) {
+        event.preventDefault()
+        const replace_nan = (val) => {
+            if(isNaN(val)) {
+                return 0
+            }
+            return val
+        }
+        const mass = parseFloat(add_body_form.mass.value)
+        const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
+        const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
+        const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
+        const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
+        const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
+        this.bodies.push(new_body)
+    }
+
+    handle_keypress(event) {
+        const key = event.key
+        if(key == '=') {
+            this.dist_scale /= CAM_ZOOM_FACTOR
+        }
+        if(key == '-') {
+            this.dist_scale *= CAM_ZOOM_FACTOR
+        }
+        if(key == 'w') {
+            this.screen_center.y -= this.dist_scale * CAM_MOVE
+        }
+        else if(key == 'a') {
+            this.screen_center.x -= this.dist_scale * CAM_MOVE
+        }
+        else if(key == 's') {
+            this.screen_center.y += this.dist_scale * CAM_MOVE
+        }
+        else if(key == 'd') {
+            this.screen_center.x += this.dist_scale * CAM_MOVE
+        }
     }
 
     render() {
