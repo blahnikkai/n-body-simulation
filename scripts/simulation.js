@@ -131,9 +131,18 @@ export class Simulation {
         this.show_acc = true
         
         this.bodies = []
-        this.bodies.push(new Body(1e34, new Vector(0, 0)))
-        this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
-        this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
+        this.bodies.push(new Body(1e33, new Vector(0, 0)))
+        // orbital resonance
+        // 1:1
+        this.bodies.push(new Body(1e29, new Vector(.7e8, 0), new Vector(0, 30868384.1958)))
+        // 2:1
+        this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
+        // 4:1
+        this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
+        // this.bodies.push(new Body(1e34, new Vector(0, 0)))
+        // this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
+        // this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
+        
         // tried to get moon, not possible
         this.canvas.addEventListener('click', (event) => {
             const rect = event.target.getBoundingClientRect()
