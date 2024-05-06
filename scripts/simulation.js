@@ -160,6 +160,8 @@ export class Simulation {
         const add_body_form = document.getElementById('add_body_form')
         const show_vel_checkbox = document.getElementById('show_vel_checkbox')
         const show_acc_checkbox = document.getElementById('show_acc_checkbox')
+        const clear_btn = document.getElementById('clear_btn')
+        clear_btn.addEventListener('click', () => {this.bodies = []})
         show_vel_checkbox.addEventListener('change', () => {
             this.show_vel = !this.show_vel
         })
