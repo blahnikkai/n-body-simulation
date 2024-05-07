@@ -11,45 +11,49 @@
         <script type="module" src="scripts/script.js" defer></script>
     </head>
     <body>
-        <nav>
-            <button id="step">Step</button>
-            <button id="play">Play</button>
-        </nav>
-        <div>
-            <div>
-                <input type="checkbox" id="show_vel_checkbox" checked>
-                <label>Show Velocity</label>
+        <section>
+            <canvas id="canvas" width="800" height="800"></canvas>
+            <div classs="ui">
+                <div>
+                    <button id="step">Step</button>
+                    <button id="play">Play</button>
+                </div>
+                <div>
+                    <div>
+                        <input type="checkbox" id="show_vel_checkbox" checked>
+                        <label>Show Velocity</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="show_acc_checkbox" checked>
+                        <label>Show Acceleration</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="show_crosshairs_checkbox">
+                        <label>Show Crosshairs</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="show_debug_checkbox">
+                        <label>Show Debug Info</label>
+                    </div>
+                </div>
+                <form id="add_body_form">
+                    <div>
+                        <input type="number" name="mass" placeholder="mass (kg)">
+                    </div>
+                    <div>
+                        <input type="number" name="pos_x" placeholder="x position (m)">
+                        <input type="number" name="pos_y" placeholder="y position (m)">
+                    </div>
+                    <div>
+                        <input type="number" name="vel_x" placeholder="x velocity (m/s)">
+                        <input type="number" name="vel_y" placeholder="y velocity (m/s)">
+                    </div>
+                    <button>Submit</button>
+                </form>
+                <div>
+                    <button id="clear_btn">Clear All Bodies</button>
+                </div>
             </div>
-            <div>
-                <input type="checkbox" id="show_acc_checkbox" checked>
-                <label>Show Acceleration</label>
-            </div>
-            <div>
-                <input type="checkbox" id="show_crosshairs_checkbox">
-                <label>Show Crosshairs</label>
-            </div>
-            <div>
-                <input type="checkbox" id="show_debug_checkbox">
-                <label>Show Debug Info</label>
-            </div>
-        </div>
-        <form id="add_body_form">
-            <div>
-                <input type="number" name="mass" placeholder="mass (kg)">
-            </div>
-            <div>
-                <input type="number" name="pos_x" placeholder="x position (m)">
-                <input type="number" name="pos_y" placeholder="y position (m)">
-            </div>
-            <div>
-                <input type="number" name="vel_x" placeholder="x velocity (m/s)">
-                <input type="number" name="vel_y" placeholder="y velocity (m/s)">
-            </div>
-            <button>Submit</button>
-        </form>
-        <div>
-            <button id="clear_btn">Clear All Bodies</button>
-        </div>
-        <canvas id="canvas" width="800" height="800">
+        </section>
     </body>
 </html>

@@ -25,3 +25,8 @@ html {
 label {
     color: white;
 }
+
+section {
+    display: flex;
+    flex-direction: row;
+}

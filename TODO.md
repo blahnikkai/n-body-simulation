@@ -5,4 +5,3 @@
 * Add option to change time scale
 * Try to get moon (a satellite of a satellite)
 * Make timescale 1
-* Put UI on right side
