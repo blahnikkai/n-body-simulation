@@ -74,6 +74,25 @@ function draw_acc(ctx, body, dist_scale, screen_center) {
     draw_vect(ctx, body.pos, body.acc, 'blue', dist_scale, screen_center)
 }
 
+function draw_text(ctx, txt, physics_loc, offset, mass, dist_scale, screen_center) {
+    ctx.fillStyle = 'green'
+    ctx.font = '12px sans-serif'
+    const mass_offset = mass_to_screen_rad(mass, dist_scale)
+    const screen_loc = add(
+        to_screen_vect(physics_loc, dist_scale, screen_center),
+        new Vector(mass_offset / Math.sqrt(2), mass_offset / Math.sqrt(2) + offset * 12)
+    )
+    ctx.fillText(txt, screen_loc.x, screen_loc.y)
+    ctx.fillStyle = 'white'
+}
+
+function draw_debug_info(ctx, body, dist_scale, screen_center) {
+    draw_text(ctx, 'mass: ' + body.mass, body.pos, 1, body.mass, dist_scale, screen_center)
+    draw_text(ctx, 'pos: ' + body.pos, body.pos, 2, body.mass, dist_scale, screen_center)
+    draw_text(ctx, 'vel: ' + body.vel, body.pos, 3, body.mass, dist_scale, screen_center)
+    draw_text(ctx, 'acc: ' + body.acc, body.pos, 4, body.mass, dist_scale, screen_center)
+}
+
 function draw_crosshairs(ctx) {
     ctx.strokeStyle = 'green'
     ctx.beginPath()
@@ -106,6 +125,7 @@ export class Simulation {
         this.show_vel = true
         this.show_acc = true
         this.show_crosshairs = false
+        this.show_debug = false
         
         this.bodies = []
         this.add_regular_orbits()
@@ -128,6 +148,8 @@ export class Simulation {
         document.getElementById('show_acc_checkbox').addEventListener('change', () => this.handle_show_acc())
         // show crosshairs checkbox
         document.getElementById('show_crosshairs_checkbox').addEventListener('change', () => this.handle_show_crosshairs())
+        // show debug checkbox
+        document.getElementById('show_debug_checkbox').addEventListener('change', () => this.handle_show_debug())
         // add body form
         const add_body_form = document.getElementById('add_body_form')
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
@@ -272,6 +294,10 @@ export class Simulation {
         this.show_crosshairs = !this.show_crosshairs
     }
 
+    handle_show_debug() {
+        this.show_debug = !this.show_debug
+    }
+
     handle_add_body(event, add_body_form) {
         event.preventDefault()
         const replace_nan = (val) => {
@@ -312,6 +338,9 @@ export class Simulation {
             }
             if(this.show_crosshairs) {
                 draw_crosshairs(this.ctx)
+            }
+            if(this.show_debug) {
+                draw_debug_info(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             }
         }
         window.requestAnimationFrame(() => this.render())

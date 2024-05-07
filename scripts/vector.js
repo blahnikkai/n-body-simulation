@@ -3,6 +3,10 @@ export class Vector {
         this.x = x
         this.y = y
     }
+
+    toString() {
+        return `${this.x.toExponential(2)}, ${this.y.toExponential(2)}`
+    }
 }
 
 export function scale(scalar, vec) {
