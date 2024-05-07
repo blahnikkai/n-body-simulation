@@ -95,59 +95,28 @@ export class Simulation {
         this.show_acc = true
         
         this.bodies = []
-        this.add_random_bodies()
-        
-        this.canvas.addEventListener('click', (event) => {
-            const rect = event.target.getBoundingClientRect()
-            const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
-            if(this.adding == 0) {
-                this.adding_body = new Body(1e29, to_physics_vect(click_pos, this.dist_scale, this.screen_center))
-            }
-            else if(this.adding == 1) {
-                const screen_pos = to_screen_vect(this.adding_body.pos, this.dist_scale, this.screen_center)
-                this.adding_body.mass = screen_rad_to_mass(
-                    Math.hypot(screen_pos.x - click_pos.x, screen_pos.y - click_pos.y), 
-                    this.dist_scale
-                )
-            }
-            else {
-                this.adding_body.vel = sub(to_physics_vect(click_pos, this.dist_scale, this.screen_center), this.adding_body.pos)
-                this.bodies.push(this.adding_body)
-            }
-            this.adding += 1
-            this.adding %= 3
-        })
-        const step_btn = document.getElementById('step')
-        const play_btn = document.getElementById('play')
-        const add_body_form = document.getElementById('add_body_form')
-        const show_vel_checkbox = document.getElementById('show_vel_checkbox')
-        const show_acc_checkbox = document.getElementById('show_acc_checkbox')
-        const clear_btn = document.getElementById('clear_btn')
-        clear_btn.addEventListener('click', () => {this.bodies = []})
-        show_vel_checkbox.addEventListener('change', () => {
-            this.show_vel = !this.show_vel
-        })
-        show_acc_checkbox.addEventListener('change', () => {
-            this.show_acc = !this.show_acc
-        })
-        add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
-        window.addEventListener('keypress', (event) => this.handle_keypress(event))
-        step_btn.addEventListener('click', () => {
-            if(this.paused) {
-                this.step()
-            }
-        })
-        play_btn.addEventListener('click', () => {
-            this.paused = !this.paused;
-            if(this.paused) {
-                play_btn.innerText = 'Play'
-            }
-            else {
-                play_btn.innerText = 'Pause'
-                this.step()
-            }
-        })
+        this.add_regular_orbits()
+
         this.render()
+        
+        // keypress
+        window.addEventListener('keypress', (event) => this.handle_keypress(event))
+        // canvas click
+        this.canvas.addEventListener('click', (event) => this.handle_canvas_click(event))
+        // step button
+        document.getElementById('step').addEventListener('click', () => this.handle_step_btn())
+        // play button
+        const play_btn = document.getElementById('play')
+        play_btn.addEventListener('click', () => this.handle_play_btn(play_btn))
+        // show velocity checkbox
+        document.getElementById('show_vel_checkbox').addEventListener('change', () => this.handle_show_vel())
+        // show acceleration checkbox
+        document.getElementById('show_acc_checkbox').addEventListener('change', () => this.handle_show_acc())
+        // add body form
+        const add_body_form = document.getElementById('add_body_form')
+        add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
+        // clear btn
+        document.getElementById('clear_btn').addEventListener('click', () => this.handle_clear_btn())
     }
 
     add_regular_orbits() {
@@ -203,23 +172,6 @@ export class Simulation {
         }
     }
 
-    handle_add_body(event, add_body_form) {
-        event.preventDefault()
-        const replace_nan = (val) => {
-            if(isNaN(val)) {
-                return 0
-            }
-            return val
-        }
-        const mass = parseFloat(add_body_form.mass.value)
-        const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
-        const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
-        const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
-        const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
-        const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
-        this.bodies.push(new_body)
-    }
-
     handle_keypress(event) {
         const key = event.key
         if(key == '=') {
@@ -240,6 +192,73 @@ export class Simulation {
         else if(key == 'd') {
             this.screen_center.x += this.dist_scale * CAM_MOVE
         }
+    }
+
+    handle_canvas_click(event) {
+        const rect = event.target.getBoundingClientRect()
+        const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
+        if(this.adding == 0) {
+            this.adding_body = new Body(1e29, to_physics_vect(click_pos, this.dist_scale, this.screen_center))
+        }
+        else if(this.adding == 1) {
+            const screen_pos = to_screen_vect(this.adding_body.pos, this.dist_scale, this.screen_center)
+            this.adding_body.mass = screen_rad_to_mass(
+                Math.hypot(screen_pos.x - click_pos.x, screen_pos.y - click_pos.y), 
+                this.dist_scale
+            )
+        }
+        else {
+            this.adding_body.vel = sub(to_physics_vect(click_pos, this.dist_scale, this.screen_center), this.adding_body.pos)
+            this.bodies.push(this.adding_body)
+        }
+        this.adding += 1
+        this.adding %= 3
+    }
+
+    handle_step_btn() {
+        if(this.paused) {
+            this.step()
+        }
+    }
+
+    handle_play_btn(play_btn) {
+        this.paused = !this.paused
+        if(this.paused) {
+            play_btn.innerText = 'Play'
+        }
+        else {
+            play_btn.innerText = 'Pause'
+            this.step()
+        }
+    }
+
+    handle_show_vel() {
+        this.show_vel = !this.show_vel
+    }
+
+    handle_show_acc() {
+        this.show_acc = !this.show_acc
+    }
+
+    handle_add_body(event, add_body_form) {
+        event.preventDefault()
+        const replace_nan = (val) => {
+            if(isNaN(val)) {
+                return 0
+            }
+            return val
+        }
+        const mass = parseFloat(add_body_form.mass.value)
+        const pos_x = replace_nan(parseFloat(add_body_form.pos_x.value))
+        const pos_y = replace_nan(parseFloat(add_body_form.pos_y.value))
+        const vel_x = replace_nan(parseFloat(add_body_form.vel_x.value))
+        const vel_y = replace_nan(parseFloat(add_body_form.vel_y.value))
+        const new_body = new Body(mass, new Vector(pos_x, pos_y), new Vector(vel_x, vel_y))
+        this.bodies.push(new_body)
+    }
+
+    handle_clear_btn() {
+        this.bodies = []
     }
 
     render() {
