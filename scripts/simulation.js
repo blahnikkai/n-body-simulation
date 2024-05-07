@@ -1,6 +1,6 @@
 import {FRAMERATE, SCREEN_WIDTH, CAM_MOVE, CAM_ZOOM_FACTOR} from './constants.js'
 import Body from './body.js'
-import {Vector, scale, add, sub} from './vector.js'
+import {Vector, scale, add, sub, dist} from './vector.js'
 
 function mass_to_screen_rad(mass, dist_scale) {
     return 1.5 * (1e6 / dist_scale) * Math.pow(mass / 1e29, 1 / 3)
@@ -74,6 +74,18 @@ function draw_acc(ctx, body, dist_scale, screen_center) {
     draw_vect(ctx, body.pos, body.acc, 'blue', dist_scale, screen_center)
 }
 
+function draw_crosshairs(ctx) {
+    ctx.strokeStyle = 'green'
+    ctx.beginPath()
+    ctx.moveTo(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2)
+    ctx.lineTo(SCREEN_WIDTH / 2 + 10, SCREEN_WIDTH / 2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 - 10)
+    ctx.lineTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 + 10)
+    ctx.stroke()
+    ctx.strokeStyle = 'white'
+}
 
 export class Simulation {
 
@@ -93,6 +105,7 @@ export class Simulation {
 
         this.show_vel = true
         this.show_acc = true
+        this.show_crosshairs = false
         
         this.bodies = []
         this.add_regular_orbits()
@@ -103,6 +116,7 @@ export class Simulation {
         window.addEventListener('keypress', (event) => this.handle_keypress(event))
         // canvas click
         this.canvas.addEventListener('click', (event) => this.handle_canvas_click(event))
+        this.canvas.addEventListener('contextmenu', (event) => this.handle_canvas_rightclick(event))
         // step button
         document.getElementById('step').addEventListener('click', () => this.handle_step_btn())
         // play button
@@ -112,6 +126,8 @@ export class Simulation {
         document.getElementById('show_vel_checkbox').addEventListener('change', () => this.handle_show_vel())
         // show acceleration checkbox
         document.getElementById('show_acc_checkbox').addEventListener('change', () => this.handle_show_acc())
+        // show crosshairs checkbox
+        document.getElementById('show_crosshairs_checkbox').addEventListener('change', () => this.handle_show_crosshairs())
         // add body form
         const add_body_form = document.getElementById('add_body_form')
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
@@ -215,6 +231,18 @@ export class Simulation {
         this.adding %= 3
     }
 
+    handle_canvas_rightclick(event) {
+        event.preventDefault()
+        const rect = event.target.getBoundingClientRect()
+        const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
+        for(let i = 0; i < this.bodies.length; ++i) {
+            const body = this.bodies[i]
+            if(dist(to_screen_vect(body.pos, this.dist_scale, this.screen_center), click_pos) < mass_to_screen_rad(body.mass, this.dist_scale)) {
+                this.bodies.splice(i, 1)
+            }
+        }
+    }
+
     handle_step_btn() {
         if(this.paused) {
             this.step()
@@ -238,6 +266,10 @@ export class Simulation {
 
     handle_show_acc() {
         this.show_acc = !this.show_acc
+    }
+
+    handle_show_crosshairs() {
+        this.show_crosshairs = !this.show_crosshairs
     }
 
     handle_add_body(event, add_body_form) {
@@ -278,16 +310,9 @@ export class Simulation {
             if(this.show_acc) {
                 draw_acc(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             }
-            this.ctx.strokeStyle = 'green'
-            this.ctx.beginPath()
-            this.ctx.moveTo(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2)
-            this.ctx.lineTo(SCREEN_WIDTH / 2 + 10, SCREEN_WIDTH / 2)
-            this.ctx.stroke()
-            this.ctx.beginPath()
-            this.ctx.moveTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 - 10)
-            this.ctx.lineTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 + 10)
-            this.ctx.stroke()
-            this.ctx.strokeStyle = 'white'
+            if(this.show_crosshairs) {
+                draw_crosshairs(this.ctx)
+            }
         }
         window.requestAnimationFrame(() => this.render())
     }
