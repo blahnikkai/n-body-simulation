@@ -30,3 +30,7 @@ section {
     display: flex;
     flex-direction: row;
 }
+
+.ui {
+    margin-left: 1rem;
+}
