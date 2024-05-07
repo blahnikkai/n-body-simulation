@@ -155,6 +155,12 @@ export class Simulation {
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
         // clear btn
         document.getElementById('clear_btn').addEventListener('click', () => this.handle_clear_btn())
+
+        document.getElementById('add_basic_orbits_btn').addEventListener('click', () => this.add_regular_orbits())
+        document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
+        document.getElementById('add_circ_binaries_btn').addEventListener('click', () => this.add_circ_binaries())
+        document.getElementById('add_elliptical_binaries_btn').addEventListener('click', () => this.add_elliptical_binaries())
+        document.getElementById('add_random_bodies_btn').addEventListener('click', () => this.add_random_bodies())
     }
 
     add_regular_orbits() {

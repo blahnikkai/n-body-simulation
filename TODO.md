@@ -1,6 +1,14 @@
-* Add elastic collisions
-* Add colors
-* Add a button to add scenarios. Eg: sun and earth, binary stars, solar system?
+* Should add scenario buttons clear all bodies first? I think no.
+
+HIGH
+* Add reset camera button
+* Add a label for the 'add new body' form
+
+MEDIUM
 * Add option to change time scale
-* Try to get moon (a satellite of a satellite)
 * Make timescale 1
+* Add colors
+
+LOW
+* Add elastic collisions
+* Try to get moon (a satellite of a satellite)
