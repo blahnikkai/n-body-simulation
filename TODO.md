@@ -8,6 +8,7 @@ MEDIUM
 * Add option to change time scale
 * Make timescale 1
 * Add colors
+* Add trace
 
 LOW
 * Add elastic collisions
