@@ -155,6 +155,7 @@ export class Simulation {
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
         // clear btn
         document.getElementById('clear_btn').addEventListener('click', () => this.handle_clear_btn())
+        document.getElementById('center_btn').addEventListener('click', () => this.handle_center_btn())
 
         document.getElementById('add_basic_orbits_btn').addEventListener('click', () => this.add_regular_orbits())
         document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
@@ -323,6 +324,11 @@ export class Simulation {
 
     handle_clear_btn() {
         this.bodies = []
+    }
+
+    handle_center_btn() {
+        this.screen_center = new Vector(0, 0)
+        this.dist_scale = 1e6
     }
 
     render() {
