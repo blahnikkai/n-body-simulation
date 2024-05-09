@@ -3,6 +3,7 @@
 HIGH
 * Add reset camera button
 * Add a label for the 'add new body' form
+* Change blue color of acc vectors to be more visible
 
 MEDIUM
 * Add option to change time scale
