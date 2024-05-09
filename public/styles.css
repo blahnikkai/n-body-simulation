@@ -37,8 +37,7 @@ section {
 
 .container_label {
     color: white;
-    margin-top: 1rem;
-    margin-bottom: 0;
+    margin: 0;
 }
 
 .ui_container {
