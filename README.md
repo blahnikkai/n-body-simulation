@@ -1,4 +1,7 @@
 # N Body Simulation
+# https://blahnikkai.github.io/n-body-simulation
+
+## Simulation
 
 Simulates any number of bodies affecting each other through gravitation
 
