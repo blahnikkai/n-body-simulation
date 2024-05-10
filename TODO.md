@@ -7,3 +7,4 @@ MEDIUM
 LOW
 * Add colors
 * Add option to change time scale
+* Make path trace connect with current pos

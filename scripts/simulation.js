@@ -149,7 +149,7 @@ export class Simulation {
         this.show_debug = false
         
         this.bodies = []
-        this.add_elliptical_orbits()
+        this.add_moon_system()
 
         this.render()
         
@@ -192,6 +192,12 @@ export class Simulation {
         this.bodies.push(new Body(1e34, new Vector(0, 0)))
         this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
         this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
+    }
+
+    add_moon_system() {
+        this.bodies.push(new Body(1e34, new Vector(0, 0)))
+        this.bodies.push(new Body(1e31, new Vector(0, 3e8), new Vector(-47152235.7194, 0)))
+        this.bodies.push(new Body(1e28, new Vector(0, 3.1e8), new Vector(1.15 * -47152235.7194, 0)))
     }
 
     // 1:2:4 (4:2:1?) orbital resonance
