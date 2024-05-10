@@ -1,6 +1,9 @@
 * Should add scenario buttons clear all bodies first? I think no.
 
 HIGH
+* Add symmetrical starts without a central star, like that one YT video
+* Fix bug with drawing added body
+* Add magnitudes of pos, vel, and acc to debug info
 
 MEDIUM
 * Add option to change time scale
