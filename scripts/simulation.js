@@ -1,6 +1,6 @@
 import {FRAMERATE, SCREEN_WIDTH, CAM_MOVE, CAM_ZOOM_FACTOR} from './constants.js'
 import Body from './body.js'
-import {Vector, scale, add, sub, dist} from './vector.js'
+import {Vector, scale, add, sub, dist, norm} from './vector.js'
 
 function mass_to_screen_rad(mass, dist_scale) {
     return 1.5 * (1e6 / dist_scale) * Math.pow(mass / 1e29, 1 / 3)
@@ -87,10 +87,10 @@ function draw_text(ctx, txt, physics_loc, offset, mass, dist_scale, screen_cente
 }
 
 function draw_debug_info(ctx, body, dist_scale, screen_center) {
-    draw_text(ctx, 'mass: ' + body.mass, body.pos, 1, body.mass, dist_scale, screen_center)
-    draw_text(ctx, 'pos: ' + body.pos, body.pos, 2, body.mass, dist_scale, screen_center)
-    draw_text(ctx, 'vel: ' + body.vel, body.pos, 3, body.mass, dist_scale, screen_center)
-    draw_text(ctx, 'acc: ' + body.acc, body.pos, 4, body.mass, dist_scale, screen_center)
+    draw_text(ctx, `mass: ${body.mass}`, body.pos, 1, body.mass, dist_scale, screen_center)
+    draw_text(ctx, `pos: ${body.pos} (${norm(body.pos).toExponential(2)})`, body.pos, 2, body.mass, dist_scale, screen_center)
+    draw_text(ctx, `vel: ${body.vel} (${norm(body.vel).toExponential(2)})`, body.pos, 3, body.mass, dist_scale, screen_center)
+    draw_text(ctx, `acc: ${body.acc} (${norm(body.acc).toExponential(2)})`, body.pos, 4, body.mass, dist_scale, screen_center)
 }
 
 function draw_crosshairs(ctx) {
@@ -358,10 +358,6 @@ export class Simulation {
 
     render() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        // draw circle to show approx orbital path
-        // ctx.beginPath()
-        // ctx.arc(400, 400, 92, 0, 2 * Math.PI)
-        // ctx.stroke()
         if(this.adding != 0) {
             draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
         }

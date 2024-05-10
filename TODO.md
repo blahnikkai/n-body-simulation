@@ -2,14 +2,11 @@
 
 HIGH
 * Add symmetrical starts without a central star, like that one YT video
-* Add magnitudes of pos, vel, and acc to debug info
+* Make timescale 1
 
 MEDIUM
-* Add option to change time scale
-* Make timescale 1
-* Add colors
-* Add trace
+* Try to get moon (a satellite of a satellite)
 
 LOW
-* Add elastic collisions
-* Try to get moon (a satellite of a satellite)
+* Add colors
+* Add option to change time scale
