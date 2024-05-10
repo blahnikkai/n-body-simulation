@@ -142,7 +142,7 @@ export class Simulation {
         this.show_debug = false
         
         this.bodies = []
-        this.add_regular_orbits()
+        this.add_four_star()
 
         this.render()
         
@@ -177,6 +177,7 @@ export class Simulation {
         document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
         document.getElementById('add_circ_binaries_btn').addEventListener('click', () => this.add_circ_binaries())
         document.getElementById('add_elliptical_binaries_btn').addEventListener('click', () => this.add_elliptical_binaries())
+        document.getElementById('add_four_star_btn').addEventListener('click', () => this.add_four_star())
         document.getElementById('add_random_bodies_btn').addEventListener('click', () => this.add_random_bodies())
     }
 
@@ -214,6 +215,16 @@ export class Simulation {
         this.bodies.push(new Body(1e29, new Vector(111118073.638, 0), new Vector(0, 24500252.7724)))
         // 4:1
         this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
+    }
+
+    add_four_star() {
+        const m = 1e33
+        const r = 1.5e8
+        const v = 2.06e7
+        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(v, 0)))
+        this.bodies.push(new Body(m, new Vector(r, 0), new Vector(0, v)))
+        this.bodies.push(new Body(m, new Vector(0, r), new Vector(-v, 0)))
+        this.bodies.push(new Body(m, new Vector(-r, 0), new Vector(0, -v)))
     }
 
     // add a lot of random bodies
