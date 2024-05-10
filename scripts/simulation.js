@@ -149,7 +149,7 @@ export class Simulation {
         this.show_debug = false
         
         this.bodies = []
-        this.add_big_binary_system()
+        this.add_regular_orbits()
 
         this.render()
         
@@ -182,9 +182,8 @@ export class Simulation {
 
         document.getElementById('add_basic_orbits_btn').addEventListener('click', () => this.add_regular_orbits())
         document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
-        document.getElementById('add_circ_binaries_btn').addEventListener('click', () => this.add_circ_binaries())
-        document.getElementById('add_elliptical_binaries_btn').addEventListener('click', () => this.add_elliptical_binaries())
-        document.getElementById('add_four_star_btn').addEventListener('click', () => this.add_four_star())
+        document.getElementById('add_binaries_btn').addEventListener('click', () => this.add_binary_system())
+        document.getElementById('add_four_star_btn').addEventListener('click', () => this.add_four_star_system())
         document.getElementById('add_random_bodies_btn').addEventListener('click', () => this.add_random_bodies())
     }
 
@@ -193,24 +192,6 @@ export class Simulation {
         this.bodies.push(new Body(1e34, new Vector(0, 0)))
         this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
         this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
-    }
-
-    // almost circular binary star system
-    add_circ_binaries() {
-        const m = 1e33
-        const r = 1e8
-        const v = 1.295e7
-        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
-        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
-    }
-
-    // eliptical binary star
-    add_elliptical_binaries() {
-        const m = 2e33
-        const r = 1.5e8
-        const v = 1e7
-        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
-        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
     }
 
     // 1:2:4 (4:2:1?) orbital resonance
@@ -224,17 +205,7 @@ export class Simulation {
         this.bodies.push(new Body(1e29, new Vector(0, -176388946.985), new Vector(19445863.5123, 0)))
     }
 
-    add_four_star() {
-        const m = 1e33
-        const r = 1.5e8
-        const v = 2.06e7
-        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(v, 0)))
-        this.bodies.push(new Body(m, new Vector(r, 0), new Vector(0, v)))
-        this.bodies.push(new Body(m, new Vector(0, r), new Vector(-v, 0)))
-        this.bodies.push(new Body(m, new Vector(-r, 0), new Vector(0, -v)))
-    }
-
-    add_big_binary_system() {
+    add_binary_system() {
         const m = 1e32
         const r = 4.65e7
         const v = 6e6
@@ -244,6 +215,16 @@ export class Simulation {
         this.bodies.push(new Body(1e29, new Vector(0, -r + 3e7), new Vector(-v - 1.53e7, 0)))
         // p-type
         this.bodies.push(new Body(1e29, new Vector(0, -3.5e8), new Vector(-1.04 * v, 0)))
+    }
+
+    add_four_star_system() {
+        const m = 1e33
+        const r = 1.5e8
+        const v = 2.06e7
+        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(v, 0)))
+        this.bodies.push(new Body(m, new Vector(r, 0), new Vector(0, v)))
+        this.bodies.push(new Body(m, new Vector(0, r), new Vector(-v, 0)))
+        this.bodies.push(new Body(m, new Vector(-r, 0), new Vector(0, -v)))
     }
 
     // add a lot of random bodies
