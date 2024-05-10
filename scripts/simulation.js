@@ -2,130 +2,6 @@ import {FRAMERATE, SCREEN_WIDTH, CAM_MOVE, CAM_ZOOM_FACTOR} from './constants.js
 import Body from './body.js'
 import {Vector, scale, add, sub, dist, norm} from './vector.js'
 
-function mass_to_screen_rad(mass, dist_scale) {
-    return 1.5 * (1e6 / dist_scale) * Math.pow(mass / 1e29, 1 / 3)
-}
-
-function screen_rad_to_mass(rad, dist_scale) {
-    return 1e29 * Math.pow(rad / 1.5 * (dist_scale / 1e6), 3)
-}
-
-function to_screen_vect(physics_vect, dist_scale, screen_center) {
-    return add(
-        scale(1 / dist_scale, 
-            sub(
-                physics_vect, 
-                screen_center
-            ), 
-        ),
-        new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
-    )
-}
-
-function to_physics_vect(screen_vect, dist_scale, screen_center) {
-    return add(
-        screen_center,
-        scale(
-            dist_scale,
-            sub(
-                screen_vect, 
-                new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
-            ), 
-            screen_center
-        )
-    )
-}
-
-function draw_point(ctx, physics_pt, size, dist_scale, screen_center) {
-    ctx.beginPath()
-    const screen_pt = to_screen_vect(physics_pt, dist_scale, screen_center)
-    ctx.arc(screen_pt.x, screen_pt.y, size, 0, 2 * Math.PI)
-    ctx.fill()
-}
-
-function draw_pos(ctx, body, dist_scale, screen_center) {
-    draw_point(
-        ctx,
-        body.pos,
-        // 2,
-        // screen size based on mass
-        mass_to_screen_rad(body.mass, dist_scale),
-        dist_scale,
-        screen_center,
-    )
-}
-
-function draw_vect(ctx, origin, vect, clr, dist_scale, screen_center) {
-    ctx.beginPath()
-    const screen_origin = to_screen_vect(origin, dist_scale, screen_center)
-    ctx.moveTo(screen_origin.x, screen_origin.y)
-    const screen_end = to_screen_vect(add(origin, vect), dist_scale, screen_center)
-    ctx.lineTo(screen_end.x, screen_end.y)
-    ctx.strokeStyle = clr
-    ctx.stroke()
-    ctx.strokeStyle = 'white'
-}
-
-function draw_vel(ctx, body, dist_scale, screen_center) {
-    draw_vect(ctx, body.pos, body.vel, 'red', dist_scale, screen_center)
-}
-
-function draw_acc(ctx, body, dist_scale, screen_center) {
-    draw_vect(ctx, body.pos, body.acc, 'blue', dist_scale, screen_center)
-}
-
-function draw_circle(ctx, physics_pt, physics_r, dist_scale, screen_center) {
-    const screen_pt = to_screen_vect(physics_pt, dist_scale, screen_center)
-    ctx.beginPath()
-    ctx.arc(screen_pt.x, screen_pt.y, physics_r / dist_scale, 0, 2 * Math.PI)
-    ctx.stroke()
-}
-
-function draw_text(ctx, txt, physics_loc, offset, mass, dist_scale, screen_center) {
-    ctx.fillStyle = 'green'
-    ctx.font = '12px sans-serif'
-    const mass_offset = mass_to_screen_rad(mass, dist_scale)
-    const screen_loc = add(
-        to_screen_vect(physics_loc, dist_scale, screen_center),
-        new Vector(mass_offset / Math.sqrt(2), mass_offset / Math.sqrt(2) + offset * 12)
-    )
-    ctx.fillText(txt, screen_loc.x, screen_loc.y)
-    ctx.fillStyle = 'white'
-}
-
-function draw_debug_info(ctx, body, dist_scale, screen_center) {
-    draw_text(ctx, `mass: ${body.mass}`, body.pos, 1, body.mass, dist_scale, screen_center)
-    draw_text(ctx, `pos: ${body.pos} (${norm(body.pos).toExponential(2)})`, body.pos, 2, body.mass, dist_scale, screen_center)
-    draw_text(ctx, `vel: ${body.vel} (${norm(body.vel).toExponential(2)})`, body.pos, 3, body.mass, dist_scale, screen_center)
-    draw_text(ctx, `acc: ${body.acc} (${norm(body.acc).toExponential(2)})`, body.pos, 4, body.mass, dist_scale, screen_center)
-}
-
-function draw_crosshairs(ctx) {
-    ctx.strokeStyle = 'lime'
-    ctx.beginPath()
-    ctx.moveTo(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2)
-    ctx.lineTo(SCREEN_WIDTH / 2 + 10, SCREEN_WIDTH / 2)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 - 10)
-    ctx.lineTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 + 10)
-    ctx.stroke()
-    ctx.strokeStyle = 'white'
-}
-
-function draw_trace(ctx, body, dist_scale, screen_center) {
-    ctx.strokeStyle = 'teal'
-    let screen_pt = to_screen_vect(body.pos, dist_scale, screen_center)
-    ctx.moveTo(screen_pt.x, screen_pt.y)
-    ctx.beginPath()
-    for(const past_pos of body.past_pos) {
-        screen_pt = to_screen_vect(past_pos, dist_scale, screen_center)
-        ctx.lineTo(screen_pt.x, screen_pt.y)
-    }
-    ctx.stroke()
-    ctx.strokeStyle = 'white'
-}
-
 export class Simulation {
 
     constructor(canvas) {
@@ -277,17 +153,17 @@ export class Simulation {
         const rect = event.target.getBoundingClientRect()
         const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
         if(this.adding == 0) {
-            this.adding_body = new Body(1e29, to_physics_vect(click_pos, this.dist_scale, this.screen_center))
+            this.adding_body = new Body(1e29, this.to_physics_vect(click_pos, this.dist_scale, this.screen_center))
         }
         else if(this.adding == 1) {
-            const screen_pos = to_screen_vect(this.adding_body.pos, this.dist_scale, this.screen_center)
-            this.adding_body.mass = screen_rad_to_mass(
+            const screen_pos = this.to_screen_vect(this.adding_body.pos, this.dist_scale, this.screen_center)
+            this.adding_body.mass = this.screen_rad_to_mass(
                 Math.hypot(screen_pos.x - click_pos.x, screen_pos.y - click_pos.y), 
                 this.dist_scale
             )
         }
         else {
-            this.adding_body.vel = sub(to_physics_vect(click_pos, this.dist_scale, this.screen_center), this.adding_body.pos)
+            this.adding_body.vel = sub(this.to_physics_vect(click_pos, this.dist_scale, this.screen_center), this.adding_body.pos)
             this.bodies.push(this.adding_body)
         }
         this.adding += 1
@@ -300,7 +176,7 @@ export class Simulation {
         const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
         for(let i = 0; i < this.bodies.length; ++i) {
             const body = this.bodies[i]
-            if(dist(to_screen_vect(body.pos, this.dist_scale, this.screen_center), click_pos) < mass_to_screen_rad(body.mass, this.dist_scale)) {
+            if(dist(this.to_screen_vect(body.pos, this.dist_scale, this.screen_center), click_pos) < this.mass_to_screen_rad(body.mass, this.dist_scale)) {
                 this.bodies.splice(i, 1)
             }
         }
@@ -374,32 +250,6 @@ export class Simulation {
         this.dist_scale = 1e6
     }
 
-    draw_all() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        if(this.adding != 0) {
-            draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
-        }
-        for(let i = 0; i < this.bodies.length; ++i) {
-            if(this.show_trace) {
-                draw_trace(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            }
-            draw_pos(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            if(this.show_vel) {
-                draw_vel(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            }
-            if(this.show_acc) {
-                draw_acc(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            }
-            if(this.show_crosshairs) {
-                draw_crosshairs(this.ctx)
-            }
-            if(this.show_debug) {
-                draw_debug_info(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            }
-        }
-        window.requestAnimationFrame(() => this.draw_all())
-    }
-
     step() {
         for(let i = 0; i < this.bodies.length; ++i) {
             this.bodies[i].integrate(this.show_trace)
@@ -416,5 +266,150 @@ export class Simulation {
         if(!this.paused) {
             setTimeout(() => this.step(), 1000 / FRAMERATE)
         }
+    }
+
+    draw_all() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        if(this.adding != 0) {
+            this.draw_pos(this.adding_body)
+        }
+        for(const body of this.bodies) {
+            if(this.show_trace) {
+                this.draw_trace(body)
+            }
+            this.draw_pos(body)
+            if(this.show_vel) {
+                this.draw_vel(body)
+            }
+            if(this.show_acc) {
+                this.draw_acc(body)
+            }
+            if(this.show_crosshairs) {
+                this.draw_crosshairs()
+            }
+            if(this.show_debug) {
+                this.draw_debug_info(body)
+            }
+        }
+        window.requestAnimationFrame(() => this.draw_all())
+    }
+        
+    mass_to_screen_rad(mass) {
+        return 1.5 * (1e6 / this.dist_scale) * Math.pow(mass / 1e29, 1 / 3)
+    }
+
+    screen_rad_to_mass(rad) {
+        return 1e29 * Math.pow(rad / 1.5 * (this.dist_scale / 1e6), 3)
+    }
+
+    to_screen_vect(physics_vect) {
+        return add(
+            scale(1 / this.dist_scale, 
+                sub(
+                    physics_vect, 
+                    this.screen_center
+                ), 
+            ),
+            new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
+        )
+    }
+
+    to_physics_vect(screen_vect) {
+        return add(
+            this.screen_center,
+            scale(
+                this.dist_scale,
+                sub(
+                    screen_vect, 
+                    new Vector(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2)
+                ), 
+                this.screen_center
+            )
+        )
+    }
+
+    draw_point(physics_pt, size) {
+        this.ctx.beginPath()
+        const screen_pt = this.to_screen_vect(physics_pt)
+        this.ctx.arc(screen_pt.x, screen_pt.y, size, 0, 2 * Math.PI)
+        this.ctx.fill()
+    }
+
+    draw_pos(body) {
+        this.draw_point(
+            body.pos,
+            this.mass_to_screen_rad(body.mass),
+        )
+    }
+
+    draw_vect(origin, vect, clr) {
+        const screen_origin = this.to_screen_vect(origin)
+        const screen_end = this.to_screen_vect(add(origin, vect))
+        this.ctx.beginPath()
+        this.ctx.moveTo(screen_origin.x, screen_origin.y)
+        this.ctx.lineTo(screen_end.x, screen_end.y)
+        this.ctx.strokeStyle = clr
+        this.ctx.stroke()
+        this.ctx.strokeStyle = 'white'
+    }
+
+    draw_vel(body) {
+        this.draw_vect(body.pos, body.vel, 'red')
+    }
+
+    draw_acc(body) {
+        this.draw_vect(body.pos, body.acc, 'blue')
+    }
+
+    draw_circle(physics_pt, physics_r) {
+        const screen_pt = this.to_screen_vect(physics_pt)
+        this.ctx.beginPath()
+        this.ctx.arc(screen_pt.x, screen_pt.y, physics_r / this.dist_scale, 0, 2 * Math.PI)
+        this.ctx.stroke()
+    }
+
+    draw_text(txt, physics_loc, offset, mass) {
+        this.ctx.fillStyle = 'green'
+        this.ctx.font = '12px sans-serif'
+        const mass_offset =this. mass_to_screen_rad(mass)
+        const screen_loc = add(
+            this.to_screen_vect(physics_loc),
+            new Vector(mass_offset / Math.sqrt(2), mass_offset / Math.sqrt(2) + offset * 12)
+        )
+        this.ctx.fillText(txt, screen_loc.x, screen_loc.y)
+        this.ctx.fillStyle = 'white'
+    }
+
+    draw_debug_info(body) {
+        this.draw_text(`mass: ${body.mass}`, body.pos, 1, body.mass)
+        this.draw_text(`pos: ${body.pos} (${norm(body.pos).toExponential(2)})`, body.pos, 2, body.mass)
+        this.draw_text(`vel: ${body.vel} (${norm(body.vel).toExponential(2)})`, body.pos, 3, body.mass)
+        this.draw_text(`acc: ${body.acc} (${norm(body.acc).toExponential(2)})`, body.pos, 4, body.mass)
+    }
+
+    draw_crosshairs() {
+        this.ctx.strokeStyle = 'lime'
+        this.ctx.beginPath()
+        this.ctx.moveTo(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2)
+        this.ctx.lineTo(SCREEN_WIDTH / 2 + 10, SCREEN_WIDTH / 2)
+        this.ctx.stroke()
+        this.ctx.beginPath()
+        this.ctx.moveTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 - 10)
+        this.ctx.lineTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 + 10)
+        this.ctx.stroke()
+        this.ctx.strokeStyle = 'white'
+    }
+
+    draw_trace(body) {
+        this.ctx.strokeStyle = 'teal'
+        let screen_pt = this.to_screen_vect(body.pos)
+        this.ctx.moveTo(screen_pt.x, screen_pt.y)
+        this.ctx.beginPath()
+        for(const past_pos of body.past_pos) {
+            screen_pt = this.to_screen_vect(past_pos)
+            this.ctx.lineTo(screen_pt.x, screen_pt.y)
+        }
+        this.ctx.stroke()
+        this.ctx.strokeStyle = 'white'
     }
 }
