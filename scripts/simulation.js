@@ -151,7 +151,7 @@ export class Simulation {
         this.bodies = []
         this.add_elliptical_orbits()
 
-        this.render()
+        this.draw_all()
         
         // keypress
         window.addEventListener('keypress', (event) => this.handle_keypress(event))
@@ -162,7 +162,7 @@ export class Simulation {
         document.getElementById('step').addEventListener('click', () => this.handle_step_btn())
         // play button
         const play_btn = document.getElementById('play')
-        play_btn.addEventListener('click', () => this.handle_play_btn(play_btn))
+        play_btn.addEventListener('click', () => this.toggle_paused(play_btn))
         // show trace checkbox
         document.getElementById('show_trace_checkbox').addEventListener('change', () => this.handle_show_trace())
         // show velocity checkbox
@@ -177,8 +177,8 @@ export class Simulation {
         const add_body_form = document.getElementById('add_body_form')
         add_body_form.addEventListener('submit', (event) => this.handle_add_body(event, add_body_form))
         // clear btn
-        document.getElementById('clear_btn').addEventListener('click', () => this.handle_clear_btn())
-        document.getElementById('center_btn').addEventListener('click', () => this.handle_center_btn())
+        document.getElementById('clear_btn').addEventListener('click', () => this.clear_bodies())
+        document.getElementById('center_btn').addEventListener('click', () => this.reset_camera())
 
         document.getElementById('add_elliptical_orbits_btn').addEventListener('click', () => this.add_elliptical_orbits())
         document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
@@ -312,7 +312,7 @@ export class Simulation {
         }
     }
 
-    handle_play_btn(play_btn) {
+    toggle_paused(play_btn) {
         this.paused = !this.paused
         if(this.paused) {
             play_btn.innerText = 'Play'
@@ -365,16 +365,16 @@ export class Simulation {
         this.bodies.push(new_body)
     }
 
-    handle_clear_btn() {
+    clear_bodies() {
         this.bodies = []
     }
 
-    handle_center_btn() {
+    reset_camera() {
         this.screen_center = new Vector(0, 0)
         this.dist_scale = 1e6
     }
 
-    render() {
+    draw_all() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         if(this.adding != 0) {
             draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
@@ -397,7 +397,7 @@ export class Simulation {
                 draw_debug_info(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             }
         }
-        window.requestAnimationFrame(() => this.render())
+        window.requestAnimationFrame(() => this.draw_all())
     }
 
     step() {
