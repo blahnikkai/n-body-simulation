@@ -142,7 +142,7 @@ export class Simulation {
         this.show_debug = false
         
         this.bodies = []
-        this.add_four_star()
+        this.add_big_binary_system()
 
         this.render()
         
@@ -225,6 +225,16 @@ export class Simulation {
         this.bodies.push(new Body(m, new Vector(r, 0), new Vector(0, v)))
         this.bodies.push(new Body(m, new Vector(0, r), new Vector(-v, 0)))
         this.bodies.push(new Body(m, new Vector(-r, 0), new Vector(0, -v)))
+    }
+
+    add_big_binary_system() {
+        const m = 2e33
+        const r = 2e8
+        const v = 1.295e7
+        this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
+        this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
+        this.bodies.push(new Body(1e30, new Vector(0, -r + .7e8), new Vector(-v - .45e8, 0)))
+        this.bodies.push(new Body(1e30, new Vector(0, -r - 5e8), new Vector(-v - 1e8, 0)))
     }
 
     // add a lot of random bodies
