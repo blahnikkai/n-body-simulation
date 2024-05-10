@@ -6,6 +6,8 @@ Smoothly simulates 100+ bodies of different masses affecting each other with gra
 
 Each body has its own mass, position, velocity, and acceleration
 
+Note that the simulation is at a 5x time scale
+
 ## Adding bodies
 Instantly add pre-made initial conditions like elliptical orbits, resonant orbits, binary star systems, and randomly initialized bodies
 
