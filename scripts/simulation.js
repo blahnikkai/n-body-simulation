@@ -149,7 +149,7 @@ export class Simulation {
         this.show_debug = false
         
         this.bodies = []
-        this.add_moon_system()
+        this.add_elliptical_orbits()
 
         this.render()
         
@@ -184,6 +184,7 @@ export class Simulation {
         document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
         document.getElementById('add_binaries_btn').addEventListener('click', () => this.add_binary_system())
         document.getElementById('add_four_star_btn').addEventListener('click', () => this.add_four_star_system())
+        document.getElementById('add_moon_orbit_btn').addEventListener('click', () => this.add_moon_orbit())
         document.getElementById('add_random_bodies_btn').addEventListener('click', () => this.add_random_bodies())
     }
 
@@ -194,7 +195,7 @@ export class Simulation {
         this.bodies.push(new Body(1e30, new Vector(-2e8, 0), new Vector(0, -7.5e7)))
     }
 
-    add_moon_system() {
+    add_moon_orbit() {
         this.bodies.push(new Body(1e34, new Vector(0, 0)))
         this.bodies.push(new Body(1e31, new Vector(0, 3e8), new Vector(-47152235.7194, 0)))
         this.bodies.push(new Body(1e28, new Vector(0, 3.1e8), new Vector(1.15 * -47152235.7194, 0)))
