@@ -149,7 +149,7 @@ export class Simulation {
         this.show_debug = false
         
         this.bodies = []
-        this.add_regular_orbits()
+        this.add_elliptical_orbits()
 
         this.render()
         
@@ -180,14 +180,14 @@ export class Simulation {
         document.getElementById('clear_btn').addEventListener('click', () => this.handle_clear_btn())
         document.getElementById('center_btn').addEventListener('click', () => this.handle_center_btn())
 
-        document.getElementById('add_basic_orbits_btn').addEventListener('click', () => this.add_regular_orbits())
+        document.getElementById('add_elliptical_orbits_btn').addEventListener('click', () => this.add_elliptical_orbits())
         document.getElementById('add_resonant_orbits_btn').addEventListener('click', () => this.add_resonant_orbits())
         document.getElementById('add_binaries_btn').addEventListener('click', () => this.add_binary_system())
         document.getElementById('add_four_star_btn').addEventListener('click', () => this.add_four_star_system())
         document.getElementById('add_random_bodies_btn').addEventListener('click', () => this.add_random_bodies())
     }
 
-    add_regular_orbits() {
+    add_elliptical_orbits() {
         // sun and two elliptical orbits, one very short period, one longer period
         this.bodies.push(new Body(1e34, new Vector(0, 0)))
         this.bodies.push(new Body(1e30, new Vector(2e8, 0), new Vector(0, 4.5e7)))
