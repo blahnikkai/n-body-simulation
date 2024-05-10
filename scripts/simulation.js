@@ -233,8 +233,12 @@ export class Simulation {
         const v = 1.295e7
         this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
         this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
+        // s-type
         this.bodies.push(new Body(1e30, new Vector(0, -r + .7e8), new Vector(-v - .45e8, 0)))
-        this.bodies.push(new Body(1e30, new Vector(0, -r - 5e8), new Vector(-v - 1e8, 0)))
+        // t-type
+        this.bodies.push(new Body(1e31, new Vector(0, -1e9), new Vector(-1.28 * v, 0)))
+        // p-type
+        // this.bodies.push(new Body(1e30, new Vector(0, -r - 5e8), new Vector(-v - 1e8, 0)))
     }
 
     // add a lot of random bodies
@@ -382,6 +386,9 @@ export class Simulation {
         if(this.adding != 0) {
             draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
         }
+        this.ctx.beginPath()
+        this.ctx.arc(- this.screen_center.x / this.dist_scale + 400, - this.screen_center.y / this.dist_scale + 400, 1e9 / this.dist_scale, 0, 2 * Math.PI)
+        this.ctx.stroke()
         for(let i = 0; i < this.bodies.length; ++i) {
             draw_pos(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             if(this.show_vel) {
