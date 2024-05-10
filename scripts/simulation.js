@@ -380,6 +380,9 @@ export class Simulation {
             draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
         }
         for(let i = 0; i < this.bodies.length; ++i) {
+            if(this.show_trace) {
+                draw_trace(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
+            }
             draw_pos(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             if(this.show_vel) {
                 draw_vel(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
@@ -392,9 +395,6 @@ export class Simulation {
             }
             if(this.show_debug) {
                 draw_debug_info(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
-            }
-            if(this.show_trace) {
-                draw_trace(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             }
         }
         window.requestAnimationFrame(() => this.render())

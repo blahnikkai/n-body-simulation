@@ -12,14 +12,14 @@ export default class Body {
     }
 
     integrate(add_trace) {
+        this.vel = add(this.vel, scale(TIME_SCALE / FRAMERATE, this.acc))
+        this.pos = add(this.pos, scale(TIME_SCALE / FRAMERATE, this.vel))
         if(add_trace) {
             this.past_pos.push(this.pos)
             if(this.past_pos.length > 1800) {
                 this.past_pos.shift()
             }
         }
-        this.vel = add(this.vel, scale(TIME_SCALE / FRAMERATE, this.acc))
-        this.pos = add(this.pos, scale(TIME_SCALE / FRAMERATE, this.vel))
     }
 
     interact(body2) {
