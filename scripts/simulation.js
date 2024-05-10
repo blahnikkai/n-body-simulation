@@ -74,6 +74,13 @@ function draw_acc(ctx, body, dist_scale, screen_center) {
     draw_vect(ctx, body.pos, body.acc, 'blue', dist_scale, screen_center)
 }
 
+function draw_circle(ctx, physics_pt, physics_r, dist_scale, screen_center) {
+    const screen_pt = to_screen_vect(physics_pt, dist_scale, screen_center)
+    ctx.beginPath()
+    ctx.arc(screen_pt.x, screen_pt.y, physics_r / dist_scale, 0, 2 * Math.PI)
+    ctx.stroke()
+}
+
 function draw_text(ctx, txt, physics_loc, offset, mass, dist_scale, screen_center) {
     ctx.fillStyle = 'green'
     ctx.font = '12px sans-serif'
@@ -228,17 +235,15 @@ export class Simulation {
     }
 
     add_big_binary_system() {
-        const m = 2e33
-        const r = 2e8
-        const v = 1.295e7
+        const m = 1e32
+        const r = 4.65e7
+        const v = 6e6
         this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
         this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
         // s-type
-        this.bodies.push(new Body(1e30, new Vector(0, -r + .7e8), new Vector(-v - .45e8, 0)))
-        // t-type
-        this.bodies.push(new Body(1e31, new Vector(0, -1e9), new Vector(-1.28 * v, 0)))
+        this.bodies.push(new Body(1e29, new Vector(0, -r + 3e7), new Vector(-v - 1.53e7, 0)))
         // p-type
-        // this.bodies.push(new Body(1e30, new Vector(0, -r - 5e8), new Vector(-v - 1e8, 0)))
+        this.bodies.push(new Body(1e29, new Vector(0, -3.5e8), new Vector(-1.04 * v, 0)))
     }
 
     // add a lot of random bodies
@@ -386,9 +391,6 @@ export class Simulation {
         if(this.adding != 0) {
             draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
         }
-        this.ctx.beginPath()
-        this.ctx.arc(- this.screen_center.x / this.dist_scale + 400, - this.screen_center.y / this.dist_scale + 400, 1e9 / this.dist_scale, 0, 2 * Math.PI)
-        this.ctx.stroke()
         for(let i = 0; i < this.bodies.length; ++i) {
             draw_pos(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             if(this.show_vel) {
