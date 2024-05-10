@@ -42,4 +42,5 @@ section {
 
 .ui_container {
     margin-bottom: 1rem;
+    max-width: 20rem;
 }
