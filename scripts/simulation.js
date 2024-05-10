@@ -36,10 +36,10 @@ function to_physics_vect(screen_vect, dist_scale, screen_center) {
     )
 }
 
-function draw_point(ctx, origin, size, dist_scale, screen_center) {
+function draw_point(ctx, physics_pt, size, dist_scale, screen_center) {
     ctx.beginPath()
-    const screen_origin = to_screen_vect(origin, dist_scale, screen_center)
-    ctx.arc(screen_origin.x, screen_origin.y, size, 0, 2 * Math.PI)
+    const screen_pt = to_screen_vect(physics_pt, dist_scale, screen_center)
+    ctx.arc(screen_pt.x, screen_pt.y, size, 0, 2 * Math.PI)
     ctx.fill()
 }
 
@@ -94,7 +94,7 @@ function draw_debug_info(ctx, body, dist_scale, screen_center) {
 }
 
 function draw_crosshairs(ctx) {
-    ctx.strokeStyle = 'green'
+    ctx.strokeStyle = 'lime'
     ctx.beginPath()
     ctx.moveTo(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2)
     ctx.lineTo(SCREEN_WIDTH / 2 + 10, SCREEN_WIDTH / 2)
@@ -102,6 +102,19 @@ function draw_crosshairs(ctx) {
     ctx.beginPath()
     ctx.moveTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 - 10)
     ctx.lineTo(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2 + 10)
+    ctx.stroke()
+    ctx.strokeStyle = 'white'
+}
+
+function draw_trace(ctx, body, dist_scale, screen_center) {
+    ctx.strokeStyle = 'teal'
+    let screen_pt = to_screen_vect(body.pos, dist_scale, screen_center)
+    ctx.moveTo(screen_pt.x, screen_pt.y)
+    ctx.beginPath()
+    for(const past_pos of body.past_pos) {
+        screen_pt = to_screen_vect(past_pos, dist_scale, screen_center)
+        ctx.lineTo(screen_pt.x, screen_pt.y)
+    }
     ctx.stroke()
     ctx.strokeStyle = 'white'
 }
@@ -122,6 +135,7 @@ export class Simulation {
 
         this.paused = true
 
+        this.show_trace = true
         this.show_vel = true
         this.show_acc = true
         this.show_crosshairs = false
@@ -142,6 +156,8 @@ export class Simulation {
         // play button
         const play_btn = document.getElementById('play')
         play_btn.addEventListener('click', () => this.handle_play_btn(play_btn))
+        // show trace checkbox
+        document.getElementById('show_trace_checkbox').addEventListener('change', () => this.handle_show_trace())
         // show velocity checkbox
         document.getElementById('show_vel_checkbox').addEventListener('change', () => this.handle_show_vel())
         // show acceleration checkbox
@@ -175,7 +191,7 @@ export class Simulation {
     add_circ_binaries() {
         const m = 1e33
         const r = 1e8
-        const v = 1.2e7
+        const v = 1.295e7
         this.bodies.push(new Body(m, new Vector(0, r), new Vector(v, 0)))
         this.bodies.push(new Body(m, new Vector(0, -r), new Vector(-v, 0)))
     }
@@ -289,6 +305,15 @@ export class Simulation {
         }
     }
 
+    handle_show_trace() {
+        this.show_trace = !this.show_trace
+        if(!this.show_trace) {
+            for(let body of this.bodies) {
+                body.past_pos = []
+            }
+        }
+    }
+
     handle_show_vel() {
         this.show_vel = !this.show_vel
     }
@@ -354,13 +379,16 @@ export class Simulation {
             if(this.show_debug) {
                 draw_debug_info(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
             }
+            if(this.show_trace) {
+                draw_trace(this.ctx, this.bodies[i], this.dist_scale, this.screen_center)
+            }
         }
         window.requestAnimationFrame(() => this.render())
     }
 
     step() {
         for(let i = 0; i < this.bodies.length; ++i) {
-            this.bodies[i].integrate()
+            this.bodies[i].integrate(this.show_trace)
         }
         for(let i = 0; i < this.bodies.length; ++i) {
             this.bodies[i].acc = new Vector(0, 0)
