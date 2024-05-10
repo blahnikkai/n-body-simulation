@@ -362,7 +362,7 @@ export class Simulation {
         // ctx.beginPath()
         // ctx.arc(400, 400, 92, 0, 2 * Math.PI)
         // ctx.stroke()
-        if(this.adding_body) {
+        if(this.adding != 0) {
             draw_pos(this.ctx, this.adding_body, this.dist_scale, this.screen_center)
         }
         for(let i = 0; i < this.bodies.length; ++i) {
