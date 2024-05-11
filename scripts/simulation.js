@@ -204,6 +204,10 @@ export class Simulation {
                 return
             }
         }
+        if(this.check_body_clicked(this.adding_body, click_pos)) {
+            this.adding_body = null
+            this.adding = 0
+        }
     }
 
     handle_step_btn() {
