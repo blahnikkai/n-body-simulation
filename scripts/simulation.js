@@ -18,11 +18,13 @@ export class Simulation {
 
         this.paused = true
 
+        // drawing and camera stuff
         this.show_trace = true
         this.show_vel = true
         this.show_acc = true
         this.show_crosshairs = false
         this.show_debug = false
+        this.focused_body = null
         
         this.bodies = []
         this.add_elliptical_orbits()
@@ -135,6 +137,9 @@ export class Simulation {
         if(key == '-') {
             this.dist_scale *= CAM_ZOOM_FACTOR
         }
+        if(this.focused_body != null) {
+            return;
+        }
         if(key == 'w') {
             this.screen_center.y -= this.dist_scale * CAM_MOVE
         }
@@ -149,9 +154,25 @@ export class Simulation {
         }
     }
 
+    check_body_clicked(body, click_pos) {
+        return dist(this.to_screen_vect(body.pos, this.dist_scale, this.screen_center), click_pos) < this.mass_to_screen_rad(body.mass, this.dist_scale)
+    }
+
     handle_canvas_click(event) {
         const rect = event.target.getBoundingClientRect()
         const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
+        for(const body of this.bodies) {
+            if(this.check_body_clicked(body, click_pos)) {
+                if(this.focused_body === body) {
+                    this.focused_body = null
+                }
+                else {
+                    this.focused_body = body
+                }
+                // what would happend without this return?
+                return
+            }
+        }
         if(this.adding == 0) {
             this.adding_body = new Body(1e29, this.to_physics_vect(click_pos, this.dist_scale, this.screen_center))
         }
@@ -175,9 +196,12 @@ export class Simulation {
         const rect = event.target.getBoundingClientRect()
         const click_pos = new Vector(event.clientX - rect.left, event.clientY - rect.top)
         for(let i = 0; i < this.bodies.length; ++i) {
-            const body = this.bodies[i]
-            if(dist(this.to_screen_vect(body.pos, this.dist_scale, this.screen_center), click_pos) < this.mass_to_screen_rad(body.mass, this.dist_scale)) {
+            if(this.check_body_clicked(this.bodies[i], click_pos)) {
+                if(this.focused_body === this.bodies[i]) {
+                    this.focused_body = null
+                }
                 this.bodies.splice(i, 1)
+                return
             }
         }
     }
@@ -243,6 +267,9 @@ export class Simulation {
 
     clear_bodies() {
         this.bodies = []
+        this.focused_body = null
+        this.adding_body = null
+        this.adding = 0
     }
 
     reset_camera() {
@@ -269,6 +296,9 @@ export class Simulation {
     }
 
     draw_all() {
+        if(this.focused_body != null) {
+            this.screen_center = structuredClone(this.focused_body.pos)
+        }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         if(this.adding != 0) {
             this.draw_pos(this.adding_body)
@@ -328,17 +358,21 @@ export class Simulation {
         )
     }
 
-    draw_point(physics_pt, size) {
+    draw_point(physics_pt, size, clr) {
+        this.ctx.fillStyle = clr
         this.ctx.beginPath()
         const screen_pt = this.to_screen_vect(physics_pt)
         this.ctx.arc(screen_pt.x, screen_pt.y, size, 0, 2 * Math.PI)
         this.ctx.fill()
+        this.ctx.fillStyle = 'white'
     }
 
     draw_pos(body) {
+        const clr = body === this.focused_body ? 'gold' : 'white'
         this.draw_point(
             body.pos,
             this.mass_to_screen_rad(body.mass),
+            clr,
         )
     }
 
