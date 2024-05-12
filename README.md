@@ -19,10 +19,11 @@ Or if you want to add a body more precisely, use the 'Add a Body' form on the ri
 Clear all bodies with the 'Clear All Bodies' button  
 Or delete an individual body by right-clicking it
 
-## Visuals
-Move the camera with WASD and zoom in/out with +/-  
+## Visuals and Camera
+Move the camera with WASD and zoom in/out with +/-
 Reset the camera zoom and position with the 'Reset Camera' button
+Focus on a body by left-clicking it. To unfocus on it and reenter free camera mode, left-click the focused body.
 
-Pause and play or step frame-by-frame
+Pause and play the simulation or step frame-by-frame
 
-Control whether acceleration and velocity vectors are drawn
+Use checkboxes to control whether acceleration and velocity vectors, debug information, or a path trace are drawn.
