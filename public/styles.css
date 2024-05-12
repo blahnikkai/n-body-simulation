@@ -26,7 +26,7 @@ label {
     color: white;
 }
 
-section {
+.simulation {
     display: flex;
     flex-direction: row;
 }
@@ -43,4 +43,16 @@ section {
 .ui_container {
     margin-bottom: 1rem;
     max-width: 20rem;
+}
+
+.info, .info > * {
+    color: white;
+}
+
+.info {
+    margin-bottom: 2rem;
+}
+
+.info > p {
+    margin: 0;
 }

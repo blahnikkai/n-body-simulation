@@ -18,7 +18,27 @@
         <script type="module" src="scripts/script.js" defer></script>
     </head>
     <body>
-        <section>
+        <section class="info">
+            <h1>N Body Simulation</h1>
+            <h2>Simulation</h2>
+            <p>Smoothly simulates 100+ bodies of different masses affecting each other with gravitational forces</p>
+            <p>Each body has its own mass, position, velocity, and acceleration</p>
+            <p>Note that the simulation is at a 5x time scale</p>
+            <h2>Adding bodies</h2>
+            <p>Instantly add pre-made initial conditions like elliptical orbits, resonant orbits, binary star systems, and randomly initialized bodies</p>
+            <p>Add a body by simply clicking the simulation area to set position, mass, and initial velocity  </p>
+            <p>Or if you want to add a body more precisely, use the 'Add a Body' form on the right side of the page.</p>
+            <h2>Deleting bodies</h2>
+            <p>Clear all bodies with the 'Clear All Bodies' button  </p>
+            <p>Or delete an individual body by right-clicking it</p>
+            <h2>Visuals and Camera</h2>
+            <p>Move the camera with WASD and zoom in/out with +/-</p>
+            <p>Reset the camera zoom and position with the 'Reset Camera' button</p>
+            <p>Focus on a body by left-clicking it. To unfocus on it and reenter free camera mode, left-click the focused body.</p>
+            <p>Pause and play the simulation or step frame-by-frame</p>
+            <p>Use checkboxes to control whether acceleration and velocity vectors, debug information, or a path trace are drawn.</p>
+        </section>
+        <section class="simulation">
             <canvas id="canvas" width="800" height="800"></canvas>
             <div class="ui">
                 <div class="ui_container">
