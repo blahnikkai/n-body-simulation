@@ -304,26 +304,34 @@ export class Simulation {
             this.screen_center = structuredClone(this.focused_body.pos)
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        if(this.show_trace) {
+            for(const body of this.bodies) {
+                this.draw_trace(body)
+            }
+        }
+        for(const body of this.bodies) {
+            this.draw_pos(body)
+        }
         if(this.adding != 0) {
             this.draw_pos(this.adding_body)
         }
-        for(const body of this.bodies) {
-            if(this.show_trace) {
-                this.draw_trace(body)
-            }
-            this.draw_pos(body)
-            if(this.show_vel) {
+        if(this.show_vel) {
+            for(const body of this.bodies) {
                 this.draw_vel(body)
             }
-            if(this.show_acc) {
+        }
+        if(this.show_acc) {
+            for(const body of this.bodies) {
                 this.draw_acc(body)
             }
-            if(this.show_crosshairs) {
-                this.draw_crosshairs()
-            }
-            if(this.show_debug) {
+        }
+        if(this.show_debug) {
+            for(const body of this.bodies) {
                 this.draw_debug_info(body)
             }
+        }
+        if(this.show_crosshairs) {
+            this.draw_crosshairs()
         }
         window.requestAnimationFrame(() => this.draw_all())
     }
